@@ -1,4 +1,4 @@
-// src/order/order-item.entity.ts
+import { Exclude } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from '../../product/product-entity/product.entity';
 import { Order } from '../order.entity/order.entity';
@@ -8,7 +8,6 @@ export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
- 
   @ManyToOne(() => Product, { eager: true, nullable: false })
   @JoinColumn({ name: 'product_id' }) 
   product: Product;
@@ -23,5 +22,6 @@ export class OrderItem {
   pricePerUnit: number; 
 
   @ManyToOne(() => Order, order => order.items)
+  @Exclude() 
   order: Order;
 }
