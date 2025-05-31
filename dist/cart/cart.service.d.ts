@@ -17,4 +17,5 @@ export declare class CartService {
     removeItemFromCart(cartId: string, cartItemId: string): Promise<Cart>;
     private recalculateCartTotal;
     clearCart(cartId: string): Promise<Cart>;
+    getAllCarts(): Promise<Cart[]>;
 }
