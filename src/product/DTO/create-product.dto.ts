@@ -14,7 +14,7 @@ export class CreateProductDto {
   @MaxLength(100)
   name: string;
 
-  @ApiPropertyOptional({ // Use ApiPropertyOptional para campos opcionais
+  @ApiPropertyOptional({ 
     description: 'Uma descrição detalhada do produto',
     example: 'Um smartphone com câmera de alta resolução e bateria de longa duração.',
     maxLength: 500,
@@ -28,7 +28,7 @@ export class CreateProductDto {
     description: 'O preço do produto',
     example: 1999.99,
     type: 'number',
-    format: 'float', // ou 'double'
+    format: 'float', 
     minimum: 0.01,
   })
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -42,8 +42,8 @@ export class CreateProductDto {
     minimum: 0,
   })
   @IsNumber()
-  // @IsPositive() // Se 0 for uma quantidade válida em estoque, remova IsPositive ou ajuste para @Min(0)
-  // @Min(0) // Se o estoque pode ser 0
-  @IsPositive() // Se o estoque deve ser sempre > 0 ao criar (ajuste conforme sua regra)
+
+ 
+  @IsPositive() 
   stockQuantity: number;
 }
