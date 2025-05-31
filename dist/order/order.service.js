@@ -17,11 +17,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const cart_service_1 = require("../cart/cart.service");
-const order_item_entity_1 = require("../order/order-item.entity/order-item.entity");
-const order_entity_1 = require("../order/order.entity/order.entity");
-Object.defineProperty(exports, "OrderStatus", { enumerable: true, get: function () { return order_entity_1.OrderStatus; } });
 const product_entity_1 = require("../product/product-entity/product.entity");
 const product_service_1 = require("../product/product.service");
+const order_item_entity_1 = require("./order-item.entity/order-item.entity");
+const order_entity_1 = require("./order.entity/order.entity");
+Object.defineProperty(exports, "OrderStatus", { enumerable: true, get: function () { return order_entity_1.OrderStatus; } });
 let OrderService = class OrderService {
     orderRepository;
     orderItemRepository;
@@ -41,12 +41,19 @@ let OrderService = class OrderService {
             if (!cart.items || cart.items.length === 0) {
                 throw new common_1.BadRequestException('Cannot create order from an empty cart.');
             }
+            const totalAmount = cart.totalAmount;
+            const newOrder = new order_entity_1.Order();
+            newOrder.status = order_entity_1.OrderStatus.PENDING;
+            newOrder.shippingAddress = createOrderDto.shippingAddress;
+            newOrder.totalAmount = totalAmount;
+            const savedOrder = await transactionalEntityManager.save(order_entity_1.Order, newOrder);
             const orderItems = [];
-            let totalAmount = 0;
             for (const cartItem of cart.items) {
-                const product = await transactionalEntityManager.findOne(product_entity_1.Product, { where: { id: cartItem.product.id } });
+                const product = await transactionalEntityManager.findOne(product_entity_1.Product, {
+                    where: { productId: cartItem.product.productId }
+                });
                 if (!product) {
-                    throw new common_1.NotFoundException(`Product with ID ${cartItem.product.id} not found.`);
+                    throw new common_1.NotFoundException(`Product with productId ${cartItem.product.productId} not found.`);
                 }
                 if (product.stockQuantity < cartItem.quantity) {
                     throw new common_1.BadRequestException(`Not enough stock for product "${product.name}". Available: ${product.stockQuantity}, Requested: ${cartItem.quantity}`);
@@ -55,45 +62,37 @@ let OrderService = class OrderService {
                 await transactionalEntityManager.save(product_entity_1.Product, product);
                 const orderItem = new order_item_entity_1.OrderItem();
                 orderItem.product = product;
-                orderItem.productId = product.id;
+                orderItem.product.productId = product.productId;
                 orderItem.quantity = cartItem.quantity;
                 orderItem.pricePerUnit = cartItem.priceAtTimeOfAddition;
+                orderItem.order = savedOrder;
                 orderItems.push(orderItem);
-                totalAmount += orderItem.quantity * orderItem.pricePerUnit;
             }
-            const newOrder = transactionalEntityManager.create(order_entity_1.Order, {
-                items: orderItems,
-                totalAmount: totalAmount,
-                status: order_entity_1.OrderStatus.PENDING,
-                shippingAddress: createOrderDto.shippingAddress,
-            });
-            for (const item of orderItems) {
-                item.order = newOrder;
-            }
-            newOrder.items = await transactionalEntityManager.save(order_item_entity_1.OrderItem, orderItems);
-            const savedOrder = await transactionalEntityManager.save(order_entity_1.Order, newOrder);
-            await this.cartService.clearCart(createOrderDto.cartId);
-            return savedOrder;
+            const savedOrderItems = await transactionalEntityManager.save(order_item_entity_1.OrderItem, orderItems);
+            savedOrder.items = savedOrderItems;
+            return transactionalEntityManager.save(order_entity_1.Order, savedOrder);
         }).catch(error => {
-            console.error("Transaction failed:", error);
-            throw new common_1.InternalServerErrorException("Order creation failed due to an internal error.");
+            console.error('Transaction failed:', error);
+            throw new common_1.InternalServerErrorException('Order creation failed due to an internal error.');
         });
     }
     async findAll() {
-        return this.orderRepository.find({ relations: ['items', 'items.product'] });
+        return this.orderRepository.find({
+            relations: ['items', 'items.product']
+        });
     }
-    async findOne(id) {
+    async findOne(orderid) {
         const order = await this.orderRepository.findOne({
-            where: { id },
-            relations: ['items', 'items.product'],
+            where: { orderid },
+            relations: ['items', 'items.product']
         });
         if (!order) {
-            throw new common_1.NotFoundException(`Order with ID "${id}" not found`);
+            throw new common_1.NotFoundException(`Order with ID "${orderid}" not found`);
         }
         return order;
     }
-    async updateOrderStatus(id, status) {
-        const order = await this.findOne(id);
+    async updateOrderStatus(orderid, status) {
+        const order = await this.findOne(orderid);
         order.status = status;
         return this.orderRepository.save(order);
     }

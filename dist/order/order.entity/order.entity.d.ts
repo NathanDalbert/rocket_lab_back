@@ -7,7 +7,7 @@ export declare enum OrderStatus {
     CANCELLED = "CANCELLED"
 }
 export declare class Order {
-    id: string;
+    orderid: string;
     items: OrderItem[];
     totalAmount: number;
     status: OrderStatus;

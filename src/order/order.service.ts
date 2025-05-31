@@ -35,26 +35,26 @@ export class OrderService {
       throw new BadRequestException('Cannot create order from an empty cart.');
     }
 
-    // Use o totalAmount vindo do carrinho diretamente
+  
     const totalAmount = cart.totalAmount;
 
     const newOrder = new Order();
     newOrder.status = OrderStatus.PENDING;
     newOrder.shippingAddress = createOrderDto.shippingAddress;
-    newOrder.totalAmount = totalAmount; // aqui usa o valor do cart
+    newOrder.totalAmount = totalAmount; 
 
-    // Salva a ordem inicialmente
+    
     const savedOrder = await transactionalEntityManager.save(Order, newOrder);
 
     const orderItems: OrderItem[] = [];
 
     for (const cartItem of cart.items) {
       const product = await transactionalEntityManager.findOne(Product, {
-        where: { id: cartItem.product.id }
+        where: { productId: cartItem.product.productId }
       });
 
       if (!product) {
-        throw new NotFoundException(`Product with ID ${cartItem.product.id} not found.`);
+        throw new NotFoundException(`Product with productId ${cartItem.product.productId} not found.`);
       }
 
       if (product.stockQuantity < cartItem.quantity) {
@@ -68,7 +68,7 @@ export class OrderService {
 
       const orderItem = new OrderItem();
       orderItem.product = product;
-      orderItem.productId = product.id;
+      orderItem.product.productId = product.productId;
       orderItem.quantity = cartItem.quantity;
       orderItem.pricePerUnit = cartItem.priceAtTimeOfAddition;
       orderItem.order = savedOrder;
@@ -79,7 +79,7 @@ export class OrderService {
     const savedOrderItems = await transactionalEntityManager.save(OrderItem, orderItems);
     savedOrder.items = savedOrderItems;
 
-    // Atualiza a ordem com os itens (opcional, só se quiser garantir o relacionamento)
+    
     return transactionalEntityManager.save(Order, savedOrder);
   }).catch(error => {
     console.error('Transaction failed:', error);
@@ -93,21 +93,21 @@ export class OrderService {
     });
   }
 
-  async findOne(id: string): Promise<Order> {
+  async findOne( orderid: string): Promise<Order> {
     const order = await this.orderRepository.findOne({
-      where: { id },
+      where: {  orderid },
       relations: ['items', 'items.product']
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID "${id}" not found`);
+      throw new NotFoundException(`Order with ID "${orderid}" not found`);
     }
 
     return order;
   }
 
-  async updateOrderStatus(id: string, status: OrderStatus): Promise<Order> {
-    const order = await this.findOne(id);
+  async updateOrderStatus( orderid: string, status: OrderStatus): Promise<Order> {
+    const order = await this.findOne( orderid);
     order.status = status;
     return this.orderRepository.save(order);
   }

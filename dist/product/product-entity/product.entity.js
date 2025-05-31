@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Product = void 0;
 const typeorm_1 = require("typeorm");
 let Product = class Product {
-    id;
+    productId;
     name;
     description;
     price;
@@ -22,7 +22,7 @@ exports.Product = Product;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], Product.prototype, "id", void 0);
+], Product.prototype, "productId", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)

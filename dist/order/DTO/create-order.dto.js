@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateOrderDto = void 0;
+const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateOrderDto {
     cartId;
@@ -17,11 +18,20 @@ class CreateOrderDto {
 }
 exports.CreateOrderDto = CreateOrderDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: '0b23fba7-d7f9-4e76-8cc0-4d03b1e22f7a',
+        description: 'ID do carrinho a partir do qual o pedido será criado'
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "cartId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: 'Rua das Laranjeiras, 123 - Salvador/BA',
+        description: 'Endereço de entrega',
+        required: false
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

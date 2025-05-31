@@ -46,6 +46,9 @@ let CartController = class CartController {
     clearCart(cartId) {
         return this.cartService.clearCart(cartId);
     }
+    getAllCarts() {
+        return this.cartService.getAllCarts();
+    }
 };
 exports.CartController = CartController;
 __decorate([
@@ -134,6 +137,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "clearCart", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os carrinhos de compras' }),
+    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [cart_entity_1.Cart] }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CartController.prototype, "getAllCarts", null);
 exports.CartController = CartController = __decorate([
     (0, swagger_1.ApiTags)('cart'),
     (0, common_1.Controller)('carts'),

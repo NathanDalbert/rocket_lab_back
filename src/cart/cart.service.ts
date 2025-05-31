@@ -24,7 +24,7 @@ export class CartService {
 
   async getCart(cartId: string): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
-      where: { id: cartId },
+      where: { cartId: cartId },
       relations: ['items', 'items.product'],
     });
     if (!cart) {
@@ -42,7 +42,7 @@ export class CartService {
       throw new BadRequestException(`Not enough stock for product "${product.name}". Available: ${product.stockQuantity}, Requested: ${addToCartDto.quantity}`);
     }
 
-    let cartItem = cart.items.find(item => item.product.id === addToCartDto.productId);
+    let cartItem = cart.items.find(item => item.product.productId === addToCartDto.productId);
 
     if (cartItem) {
       cartItem.quantity += addToCartDto.quantity;
@@ -75,7 +75,7 @@ export class CartService {
       targetCartId = smartAddToCartDto.cartId;
     } else {
       const newCart = await this.createCart();
-      targetCartId = newCart.id;
+      targetCartId = newCart.cartId;
     }
 
     const itemDetails: AddToCartDto = {
@@ -88,13 +88,13 @@ export class CartService {
 
   async updateCartItem(cartId: string, cartItemId: string, updateCartItemDto: UpdateCartItemDto): Promise<Cart> {
     const cart = await this.getCart(cartId);
-    const cartItem = cart.items.find(item => item.id === cartItemId);
+    const cartItem = cart.items.find(item => item.cartItemId === cartItemId);
 
     if (!cartItem) {
       throw new NotFoundException(`Cart item with ID "${cartItemId}" not found in cart "${cartId}"`);
     }
 
-    const product = await this.productService.findOne(cartItem.product.id);
+    const product = await this.productService.findOne(cartItem.product.productId);
     if (product.stockQuantity < updateCartItemDto.quantity) {
       throw new BadRequestException(`Not enough stock for product "${product.name}". Available: ${product.stockQuantity}, Requested: ${updateCartItemDto.quantity}`);
     }
@@ -107,7 +107,7 @@ export class CartService {
 
   async removeItemFromCart(cartId: string, cartItemId: string): Promise<Cart> {
     const cart = await this.getCart(cartId);
-    const itemIndex = cart.items.findIndex(item => item.id === cartItemId);
+    const itemIndex = cart.items.findIndex(item => item.cartItemId === cartItemId);
 
     if (itemIndex === -1) {
       throw new NotFoundException(`Cart item with ID "${cartItemId}" not found in cart "${cartId}"`);

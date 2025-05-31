@@ -6,7 +6,7 @@ import { Order } from '../order.entity/order.entity';
 @Entity('order_items') 
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  orderItemId: string;
 
   @ManyToOne(() => Product, { eager: true, nullable: false })
   @JoinColumn({ name: 'product_id' }) 

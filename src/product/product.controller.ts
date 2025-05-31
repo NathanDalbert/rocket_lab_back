@@ -45,7 +45,7 @@ export class ProductController {
   @ApiResponse({ status: HttpStatus.OK, description: 'Produto atualizado com sucesso.', type: Product })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Produto não encontrado para atualização.' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dados de entrada inválidos para atualização.' })
-  // @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Já está global
+ 
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto): Promise<Product> {
     return this.productService.update(id, updateProductDto);
   }

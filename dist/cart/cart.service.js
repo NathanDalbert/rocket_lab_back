@@ -33,7 +33,7 @@ let CartService = class CartService {
     }
     async getCart(cartId) {
         const cart = await this.cartRepository.findOne({
-            where: { id: cartId },
+            where: { cartId: cartId },
             relations: ['items', 'items.product'],
         });
         if (!cart) {
@@ -48,7 +48,7 @@ let CartService = class CartService {
         if (product.stockQuantity < addToCartDto.quantity) {
             throw new common_1.BadRequestException(`Not enough stock for product "${product.name}". Available: ${product.stockQuantity}, Requested: ${addToCartDto.quantity}`);
         }
-        let cartItem = cart.items.find(item => item.product.id === addToCartDto.productId);
+        let cartItem = cart.items.find(item => item.product.productId === addToCartDto.productId);
         if (cartItem) {
             cartItem.quantity += addToCartDto.quantity;
             cartItem.priceAtTimeOfAddition = product.price;
@@ -78,7 +78,7 @@ let CartService = class CartService {
         }
         else {
             const newCart = await this.createCart();
-            targetCartId = newCart.id;
+            targetCartId = newCart.cartId;
         }
         const itemDetails = {
             productId: smartAddToCartDto.productId,
@@ -88,11 +88,11 @@ let CartService = class CartService {
     }
     async updateCartItem(cartId, cartItemId, updateCartItemDto) {
         const cart = await this.getCart(cartId);
-        const cartItem = cart.items.find(item => item.id === cartItemId);
+        const cartItem = cart.items.find(item => item.cartItemId === cartItemId);
         if (!cartItem) {
             throw new common_1.NotFoundException(`Cart item with ID "${cartItemId}" not found in cart "${cartId}"`);
         }
-        const product = await this.productService.findOne(cartItem.product.id);
+        const product = await this.productService.findOne(cartItem.product.productId);
         if (product.stockQuantity < updateCartItemDto.quantity) {
             throw new common_1.BadRequestException(`Not enough stock for product "${product.name}". Available: ${product.stockQuantity}, Requested: ${updateCartItemDto.quantity}`);
         }
@@ -103,7 +103,7 @@ let CartService = class CartService {
     }
     async removeItemFromCart(cartId, cartItemId) {
         const cart = await this.getCart(cartId);
-        const itemIndex = cart.items.findIndex(item => item.id === cartItemId);
+        const itemIndex = cart.items.findIndex(item => item.cartItemId === cartItemId);
         if (itemIndex === -1) {
             throw new common_1.NotFoundException(`Cart item with ID "${cartItemId}" not found in cart "${cartId}"`);
         }
@@ -127,6 +127,9 @@ let CartService = class CartService {
         cart.items = [];
         this.recalculateCartTotal(cart);
         return this.cartRepository.save(cart);
+    }
+    async getAllCarts() {
+        return this.cartRepository.find({ relations: ['items', 'items.product'] });
     }
 };
 exports.CartService = CartService;

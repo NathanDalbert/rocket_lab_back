@@ -13,7 +13,7 @@ exports.Cart = void 0;
 const typeorm_1 = require("typeorm");
 const cart_item_entity_1 = require("../cart-item.entity/cart-item.entity");
 let Cart = class Cart {
-    id;
+    cartId;
     userId;
     items;
     totalAmount;
@@ -22,7 +22,7 @@ exports.Cart = Cart;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], Cart.prototype, "id", void 0);
+], Cart.prototype, "cartId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)

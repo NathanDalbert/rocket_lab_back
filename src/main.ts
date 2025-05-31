@@ -20,11 +20,11 @@ async function bootstrap() {
     .addTag('products', 'Operações relacionadas a produtos') 
     .addTag('cart', 'Operações relacionadas ao carrinho de compras')
     .addTag('orders', 'Operações relacionadas a pedidos')
-    // .addBearerAuth() // Se você tiver autenticação JWT, descomente e configure
+    
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document, { // 'api-docs' será o endpoint da sua documentação (ex: http://localhost:3000/api-docs)
+  SwaggerModule.setup('api-docs', app, document, { 
     customSiteTitle: 'Backend Compras API Docs',
     customfavIcon: 'https://nestjs.com/img/logo_text.svg', 
     customCss: '.swagger-ui .topbar { display: none }', 

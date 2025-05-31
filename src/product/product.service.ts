@@ -22,17 +22,17 @@ export class ProductService {
     return this.productRepository.find();
   }
 
-  async findOne(id: string): Promise<Product> {
-    const product = await this.productRepository.findOneBy({ id });
+  async findOne(productId: string): Promise<Product> {
+    const product = await this.productRepository.findOneBy({ productId });
     if (!product) {
-      throw new NotFoundException(`Product with ID "${id}" not found`);
+      throw new NotFoundException(`Product with ID "${productId}" not found`);
     }
     return product;
   }
 
   async update(id: string, updateProductDto: UpdateProductDto): Promise<Product> {
     const product = await this.productRepository.preload({
-      id: id,
+      productId: id,
       ...updateProductDto,
     });
     if (!product) {

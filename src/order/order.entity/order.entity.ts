@@ -12,11 +12,9 @@ export enum OrderStatus {
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  orderid: string;
 
-  // @Column({ nullable: true }) // Se tiver usuários
-  // userId?: string;
-
+  
   @OneToMany(() => OrderItem, item => item.order, { cascade: true, eager: true })
   items: OrderItem[];
 

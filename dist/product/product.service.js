@@ -29,16 +29,16 @@ let ProductService = class ProductService {
     async findAll() {
         return this.productRepository.find();
     }
-    async findOne(id) {
-        const product = await this.productRepository.findOneBy({ id });
+    async findOne(productId) {
+        const product = await this.productRepository.findOneBy({ productId });
         if (!product) {
-            throw new common_1.NotFoundException(`Product with ID "${id}" not found`);
+            throw new common_1.NotFoundException(`Product with ID "${productId}" not found`);
         }
         return product;
     }
     async update(id, updateProductDto) {
         const product = await this.productRepository.preload({
-            id: id,
+            productId: id,
             ...updateProductDto,
         });
         if (!product) {

@@ -15,7 +15,7 @@ const product_entity_1 = require("../../product/product-entity/product.entity");
 const cart_entity_1 = require("../cart.entity/cart.entity");
 Object.defineProperty(exports, "Cart", { enumerable: true, get: function () { return cart_entity_1.Cart; } });
 let CartItem = class CartItem {
-    id;
+    cartItemId;
     product;
     quantity;
     cart;
@@ -25,7 +25,7 @@ exports.CartItem = CartItem;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], CartItem.prototype, "id", void 0);
+], CartItem.prototype, "cartItemId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, { eager: true }),
     __metadata("design:type", product_entity_1.Product)

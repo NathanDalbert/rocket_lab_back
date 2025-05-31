@@ -4,7 +4,7 @@ import { Cart } from '../cart.entity/cart.entity';
 @Entity()
 export class CartItem {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  cartItemId: string;
 
   @ManyToOne(() => Product, { eager: true }) 
   product: Product;
