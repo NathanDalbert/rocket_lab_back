@@ -13,4 +13,5 @@ export declare class CartController {
     updateCartItem(cartId: string, cartItemId: string, updateCartItemDto: UpdateCartItemDto): Promise<Cart>;
     removeItemFromCart(cartId: string, cartItemId: string): Promise<Cart>;
     clearCart(cartId: string): Promise<Cart>;
+    getAllCarts(): Promise<Cart[]>;
 }
