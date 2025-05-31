@@ -54,12 +54,12 @@ export class CartService {
         cart: cart,
         priceAtTimeOfAddition: product.price,
       });
-      // Ensure items array is initialized before pushing
+  
       if (!Array.isArray(cart.items)) {
         cart.items = [];
       }
       cart.items.push(newCartItem);
-      cartItem = newCartItem; // Assign to cartItem to be saved below
+      cartItem = newCartItem; 
     }
 
     await this.cartItemRepository.save(cartItem);
@@ -124,17 +124,22 @@ export class CartService {
     cart.totalAmount = cart.items.reduce((total, item) => {
       return total + (item.priceAtTimeOfAddition * item.quantity);
     }, 0);
-    // Arredondar para 2 casas decimais para evitar problemas de ponto flutuante
+    
     cart.totalAmount = parseFloat(cart.totalAmount.toFixed(2));
   }
 
   async clearCart(cartId: string): Promise<Cart> {
     const cart = await this.getCart(cartId);
     if (cart.items && cart.items.length > 0) {
-        await this.cartItemRepository.remove(cart.items); // Remove todos os CartItems associados
+        await this.cartItemRepository.remove(cart.items); 
     }
     cart.items = [];
     this.recalculateCartTotal(cart);
     return this.cartRepository.save(cart);
   }
+  async getAllCarts(): Promise<Cart[]> {
+ return this.cartRepository.find({ relations: ['items', 'items.product'] });
+
+}
+
 }
