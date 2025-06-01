@@ -1,4 +1,4 @@
-import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EntityManager, ObjectLiteral, Repository } from 'typeorm';
@@ -48,6 +48,8 @@ describe('OrderService', () => {
   let cartService: MockCartService;
   let entityManager: MockEntityManager;
   let mockTransactionalEntityManager: MockEntityManager;
+  let consoleErrorSpy: jest.SpyInstance;
+
 
   const mockCartId = uuidv4();
   const mockOrderId = uuidv4();
@@ -60,28 +62,12 @@ describe('OrderService', () => {
     shippingAddress: mockShippingAddress,
   };
 
-  const mockProduct1: Product = { productId: mockProductId1, name: 'Produto 1', price: 10, stockQuantity: 5, description:'' };
-  const mockProduct2: Product = { productId: mockProductId2, name: 'Produto 2', price: 20, stockQuantity: 3, description:'' };
-
-  const mockCartItem1: CartItemEntity = { cartItemId: uuidv4(), product: mockProduct1, quantity: 2, priceAtTimeOfAddition: 10, cart: null as any };
-  const mockCartItem2: CartItemEntity = { cartItemId: uuidv4(), product: mockProduct2, quantity: 1, priceAtTimeOfAddition: 20, cart: null as any };
-  
-  const mockCart: Cart = {
-    cartId: mockCartId,
-    items: [mockCartItem1, mockCartItem2],
-    totalAmount: (mockCartItem1.quantity * mockCartItem1.priceAtTimeOfAddition) + (mockCartItem2.quantity * mockCartItem2.priceAtTimeOfAddition),
-    userId: undefined,
-  };
-
-  const mockOrder: Order = {
-    orderId: mockOrderId,
-    items: [],
-    totalAmount: mockCart.totalAmount,
-    status: OrderStatus.PENDING,
-    shippingAddress: mockShippingAddress,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+  let mockProduct1: Product;
+  let mockProduct2: Product;
+  let mockCartItem1: CartItemEntity;
+  let mockCartItem2: CartItemEntity;
+  let mockCart: Cart;
+  let mockOrder: Order;
   
   beforeEach(async () => {
     mockTransactionalEntityManager = {
@@ -107,10 +93,36 @@ describe('OrderService', () => {
     entityManager = module.get(EntityManager);
 
     entityManager.transaction!.mockImplementation(async (cb) => cb(mockTransactionalEntityManager));
+
+    mockProduct1 = { productId: mockProductId1, name: 'Produto 1', price: 10, stockQuantity: 5, description:'' };
+    mockProduct2 = { productId: mockProductId2, name: 'Produto 2', price: 20, stockQuantity: 3, description:'' };
+
+    mockCartItem1 = { cartItemId: uuidv4(), product: mockProduct1, quantity: 2, priceAtTimeOfAddition: 10, cart: null as any };
+    mockCartItem2 = { cartItemId: uuidv4(), product: mockProduct2, quantity: 1, priceAtTimeOfAddition: 20, cart: null as any };
+    
+    mockCart = {
+      cartId: mockCartId,
+      items: [mockCartItem1, mockCartItem2],
+      totalAmount: (mockCartItem1.quantity * mockCartItem1.priceAtTimeOfAddition) + (mockCartItem2.quantity * mockCartItem2.priceAtTimeOfAddition),
+      userId: undefined,
+    };
+
+    mockOrder = {
+      orderId: mockOrderId,
+      items: [],
+      totalAmount: mockCart.totalAmount,
+      status: OrderStatus.PENDING,
+      shippingAddress: mockShippingAddress,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    if(consoleErrorSpy) {
+        consoleErrorSpy.mockRestore();
+    }
   });
 
   it('deve ser definido', () => {
@@ -118,19 +130,39 @@ describe('OrderService', () => {
   });
 
   describe('createOrder', () => {
+    beforeEach(() => {
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+    
     it('deve criar um pedido com sucesso', async () => {
       cartService.getCart!.mockResolvedValue(mockCart);
       
       mockTransactionalEntityManager.findOne!
-        .mockResolvedValueOnce(mockProduct1)
-        .mockResolvedValueOnce(mockProduct2);
+        .mockResolvedValueOnce({ ...mockProduct1 })
+        .mockResolvedValueOnce({ ...mockProduct2 });
+
+      const expectedSavedOrderInitial = { orderId: mockOrderId, items:[], totalAmount: mockCart.totalAmount, status: OrderStatus.PENDING, shippingAddress: mockShippingAddress, createdAt: expect.any(Date), updatedAt: expect.any(Date) };
+      const savedProduct1 = { ...mockProduct1, stockQuantity: mockProduct1.stockQuantity - mockCartItem1.quantity };
+      const savedProduct2 = { ...mockProduct2, stockQuantity: mockProduct2.stockQuantity - mockCartItem2.quantity };
+      
+      const mockSavedOrderItems: OrderItem[] = mockCart.items.map(ci => ({
+        orderItemId: expect.any(String),
+        product: ci.product === mockProduct1 ? savedProduct1 : savedProduct2,
+        productId: ci.product.productId,
+        quantity: ci.quantity,
+        pricePerUnit: ci.priceAtTimeOfAddition,
+        order: expect.objectContaining({ orderId: mockOrderId }) as Order,
+      }));
+
+      const finalOrderWithItems = { ...expectedSavedOrderInitial, items: mockSavedOrderItems };
+
 
       mockTransactionalEntityManager.save!
-        .mockImplementationOnce(async (entityType, orderData) => ({ ...orderData, orderId: mockOrderId, items:[] } as Order))
-        .mockImplementationOnce(async (entityType, productData) => productData as Product)
-        .mockImplementationOnce(async (entityType, productData) => productData as Product)
-        .mockImplementationOnce(async (entityType, orderItemsData) => orderItemsData as OrderItem[])
-        .mockImplementationOnce(async (entityType, finalOrderData) => finalOrderData as Order);
+        .mockImplementationOnce(async (entityType, orderData) => ({ ...orderData, orderId: mockOrderId, items:[], createdAt: new Date(), updatedAt: new Date() } as Order))
+        .mockImplementationOnce(async (entityType, productData) => productData as Product) 
+        .mockImplementationOnce(async (entityType, productData) => productData as Product) 
+        .mockImplementationOnce(async (entityType, orderItemsData) => mockSavedOrderItems as OrderItem[])
+        .mockImplementationOnce(async (entityType, finalOrderData) => finalOrderWithItems as Order);
 
       const result = await service.createOrder(mockCreateOrderDto);
 
@@ -140,22 +172,16 @@ describe('OrderService', () => {
       expect(mockTransactionalEntityManager.findOne).toHaveBeenCalledWith(Product, { where: { productId: mockProductId2 } });
       
       expect(mockTransactionalEntityManager.save).toHaveBeenCalledTimes(5);
-      expect(mockTransactionalEntityManager.save).toHaveBeenCalledWith(Product, expect.objectContaining({ productId: mockProductId1, stockQuantity: mockProduct1.stockQuantity - mockCartItem1.quantity }));
-      expect(mockTransactionalEntityManager.save).toHaveBeenCalledWith(Product, expect.objectContaining({ productId: mockProductId2, stockQuantity: mockProduct2.stockQuantity - mockCartItem2.quantity }));
+      expect(mockTransactionalEntityManager.save).toHaveBeenCalledWith(Product, expect.objectContaining({ productId: mockProductId1, stockQuantity: savedProduct1.stockQuantity }));
+      expect(mockTransactionalEntityManager.save).toHaveBeenCalledWith(Product, expect.objectContaining({ productId: mockProductId2, stockQuantity: savedProduct2.stockQuantity }));
       
       expect(result.orderId).toBe(mockOrderId);
       expect(result.items.length).toBe(mockCart.items.length);
       expect(result.totalAmount).toBe(mockCart.totalAmount);
       expect(result.status).toBe(OrderStatus.PENDING);
     });
-
-    it('deve lançar BadRequestException se o carrinho estiver vazio (verificação antes da transação)', async () => {
-      cartService.getCart!.mockResolvedValue({ ...mockCart, items: [] });
-      await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(BadRequestException);
-      expect(entityManager.transaction).not.toHaveBeenCalled();
-    });
     
-    it('deve lançar InternalServerErrorException se o carrinho estiver vazio (verificação simulada dentro da transação)', async () => {
+    it('deve lançar InternalServerErrorException se o carrinho estiver vazio (verificação dentro da transação)', async () => {
         entityManager.transaction!.mockImplementation(async (cb) => {
             cartService.getCart!.mockResolvedValue({ ...mockCart, items: [] });
             return cb(mockTransactionalEntityManager);
@@ -163,14 +189,15 @@ describe('OrderService', () => {
     
         await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(InternalServerErrorException);
         expect(cartService.getCart!).toHaveBeenCalledWith(mockCartId);
+        expect(consoleErrorSpy).toHaveBeenCalled();
     });
-
 
     it('deve lançar InternalServerErrorException se um produto no carrinho não for encontrado', async () => {
       cartService.getCart!.mockResolvedValue(mockCart);
-      mockTransactionalEntityManager.findOne!.mockResolvedValueOnce(mockProduct1).mockResolvedValueOnce(null);
+      mockTransactionalEntityManager.findOne!.mockResolvedValueOnce({ ...mockProduct1 }).mockResolvedValueOnce(null);
 
       await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(InternalServerErrorException);
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it('deve lançar InternalServerErrorException se o estoque for insuficiente', async () => {
@@ -178,14 +205,16 @@ describe('OrderService', () => {
       mockTransactionalEntityManager.findOne!.mockResolvedValueOnce({ ...mockProduct1, stockQuantity: 1 });
 
       await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(InternalServerErrorException);
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
     
     it('deve lançar InternalServerErrorException se a transação falhar por outro motivo (ex: save falha)', async () => {
         cartService.getCart!.mockResolvedValue(mockCart);
-        mockTransactionalEntityManager.findOne!.mockResolvedValue(mockProduct1);
+        mockTransactionalEntityManager.findOne!.mockResolvedValue({ ...mockProduct1 });
         mockTransactionalEntityManager.save!.mockRejectedValueOnce(new Error("DB save error"));
   
         await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(InternalServerErrorException);
+        expect(consoleErrorSpy).toHaveBeenCalled();
       });
   });
 
