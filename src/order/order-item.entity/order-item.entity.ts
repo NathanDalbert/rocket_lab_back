@@ -3,13 +3,13 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { Product } from '../../product/product-entity/product.entity';
 import { Order } from '../order.entity/order.entity';
 
-@Entity('order_items') 
+@Entity('order_items')
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
   orderItemId: string;
 
-  @ManyToOne(() => Product, { eager: true, nullable: false })
-  @JoinColumn({ name: 'product_id' }) 
+  @ManyToOne(() => Product, { eager: true, nullable: false, onDelete: 'CASCADE' }) 
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 
   @Column({ name: 'product_id' })
@@ -19,9 +19,9 @@ export class OrderItem {
   quantity: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  pricePerUnit: number; 
+  pricePerUnit: number;
 
-  @ManyToOne(() => Order, order => order.items)
-  @Exclude() 
+  @ManyToOne(() => Order, order => order.items, { onDelete: 'CASCADE' }) 
+  @Exclude()
   order: Order;
 }

@@ -1,37 +1,36 @@
-// src/product/product.controller.ts
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'; // Importe
-import { Product } from '../product/product-entity/product.entity'; // Importe a entidade para o @ApiResponse
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Product } from '../product/product-entity/product.entity';
 import { CreateProductDto } from './DTO/create-product.dto';
 import { UpdateProductDto } from './DTO/update-product.dto';
 import { ProductService } from './product.service';
 
-@ApiTags('products') // Agrupa todos os endpoints deste controller sob a tag 'products'
+@ApiTags('products') 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Criar um novo produto' }) // Descrição da operação
-  @ApiBody({ type: CreateProductDto }) // Descreve o corpo da requisição
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'O produto foi criado com sucesso.', type: Product }) // Descreve uma resposta bem-sucedida
+  @ApiOperation({ summary: 'Criar um novo produto' }) 
+  @ApiBody({ type: CreateProductDto })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'O produto foi criado com sucesso.', type: Product })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dados de entrada inválidos.' })
   @HttpCode(HttpStatus.CREATED)
-  // @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Já está global
+
   create(@Body() createProductDto: CreateProductDto): Promise<Product> {
     return this.productService.create(createProductDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os produtos' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Lista de produtos retornada com sucesso.', type: [Product] }) // Retorna um array de Product
+  @ApiResponse({ status: HttpStatus.OK, description: 'Lista de produtos retornada com sucesso.', type: [Product] })
   findAll(): Promise<Product[]> {
     return this.productService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um produto específico pelo ID' })
-  @ApiParam({ name: 'id', description: 'ID do produto (UUID)', type: 'string', format: 'uuid' }) // Descreve o parâmetro da rota
+  @ApiParam({ name: 'id', description: 'ID do produto (UUID)', type: 'string', format: 'uuid' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Produto encontrado.', type: Product })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Produto não encontrado.' })
   findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {

@@ -20,7 +20,7 @@ async function bootstrap() {
     .addTag('products', 'Operações relacionadas a produtos') 
     .addTag('cart', 'Operações relacionadas ao carrinho de compras')
     .addTag('orders', 'Operações relacionadas a pedidos')
-    
+   
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

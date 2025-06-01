@@ -21,7 +21,7 @@ var OrderStatus;
     OrderStatus["CANCELLED"] = "CANCELLED";
 })(OrderStatus || (exports.OrderStatus = OrderStatus = {}));
 let Order = class Order {
-    orderid;
+    orderId;
     items;
     totalAmount;
     status;
@@ -33,7 +33,7 @@ exports.Order = Order;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
-], Order.prototype, "orderid", void 0);
+], Order.prototype, "orderId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => order_item_entity_1.OrderItem, item => item.order, { cascade: true, eager: true }),
     __metadata("design:type", Array)

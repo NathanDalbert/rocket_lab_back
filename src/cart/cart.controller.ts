@@ -106,7 +106,7 @@ export class CartController {
   clearCart(@Param('cartId', ParseUUIDPipe) cartId: string): Promise<Cart> {
       return this.cartService.clearCart(cartId);
   }
-  @Get()
+  @Get("/list")
   @ApiOperation({ summary: 'Listar todos os carrinhos de compras' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [Cart] })
   getAllCarts(): Promise<Cart[]> {

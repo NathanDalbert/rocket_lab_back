@@ -28,7 +28,7 @@ __decorate([
     __metadata("design:type", String)
 ], OrderItem.prototype, "orderItemId", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, { eager: true, nullable: false }),
+    (0, typeorm_1.ManyToOne)(() => product_entity_1.Product, { eager: true, nullable: false, onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'product_id' }),
     __metadata("design:type", product_entity_1.Product)
 ], OrderItem.prototype, "product", void 0);
@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderItem.prototype, "pricePerUnit", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => order_entity_1.Order, order => order.items),
+    (0, typeorm_1.ManyToOne)(() => order_entity_1.Order, order => order.items, { onDelete: 'CASCADE' }),
     (0, class_transformer_1.Exclude)(),
     __metadata("design:type", order_entity_1.Order)
 ], OrderItem.prototype, "order", void 0);

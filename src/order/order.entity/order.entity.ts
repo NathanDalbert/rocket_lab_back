@@ -12,9 +12,10 @@ export enum OrderStatus {
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  orderid: string;
+  orderId: string;
 
-  
+ 
+
   @OneToMany(() => OrderItem, item => item.order, { cascade: true, eager: true })
   items: OrderItem[];
 

@@ -1,4 +1,3 @@
-// src/product/product.controller.spec.ts
 import { ArgumentMetadata, ParseUUIDPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateProductDto } from './DTO/create-product.dto';
@@ -7,7 +6,7 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 
 
-// Mock ProductService
+
 const mockProductService = {
   create: jest.fn(),
   findAll: jest.fn(),
@@ -29,7 +28,7 @@ describe('ProductController', () => {
       providers: [
         {
           provide: ProductService,
-          useValue: mockProductService, // Use useValue para mocks simples
+          useValue: mockProductService, 
         },
       ],
     }).compile();
@@ -90,7 +89,7 @@ describe('remove', () => {
     it('should call productService.remove with id and return the result', async () => {
         const id = 'uuid1';
         
-        mockProductService.remove.mockResolvedValue({ affected: 1 }); // Exemplo de retorno
+        mockProductService.remove.mockResolvedValue({ affected: 1 });
 
         const result = await controller.remove(id);
 
@@ -105,7 +104,7 @@ describe('Pipes', () => {
         const pipe = new ParseUUIDPipe();
         const metadata: ArgumentMetadata = { type: 'param', metatype: String, data: 'id' };
         await expect(pipe.transform('invalid-uuid', metadata)).rejects.toThrow();
-        expect(() => pipe.transform('a1b2c3d4-e5f6-7890-1234-567890abcdef', metadata)).not.toThrow(); // UUID v4 válido
+        expect(() => pipe.transform('a1b2c3d4-e5f6-7890-1234-567890abcdef', metadata)).not.toThrow();
     });
 });
 

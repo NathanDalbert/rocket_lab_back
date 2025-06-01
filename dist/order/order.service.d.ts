@@ -13,7 +13,7 @@ export declare class OrderService {
     constructor(orderRepository: Repository<Order>, orderItemRepository: Repository<OrderItem>, cartService: CartService, productService: ProductService, entityManager: EntityManager);
     createOrder(createOrderDto: CreateOrderDto): Promise<Order>;
     findAll(): Promise<Order[]>;
-    findOne(orderid: string): Promise<Order>;
-    updateOrderStatus(orderid: string, status: OrderStatus): Promise<Order>;
+    findOne(id: string): Promise<Order>;
+    updateOrderStatus(id: string, status: OrderStatus): Promise<Order>;
 }
 export { OrderStatus };

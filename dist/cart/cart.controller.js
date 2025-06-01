@@ -138,7 +138,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "clearCart", null);
 __decorate([
-    (0, common_1.Get)(),
+    (0, common_1.Get)("/list"),
     (0, swagger_1.ApiOperation)({ summary: 'Listar todos os carrinhos de compras' }),
     (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [cart_entity_1.Cart] }),
     __metadata("design:type", Function),

@@ -35,7 +35,7 @@ export class OrderService {
       throw new BadRequestException('Cannot create order from an empty cart.');
     }
 
-  
+   
     const totalAmount = cart.totalAmount;
 
     const newOrder = new Order();
@@ -54,7 +54,7 @@ export class OrderService {
       });
 
       if (!product) {
-        throw new NotFoundException(`Product with productId ${cartItem.product.productId} not found.`);
+        throw new NotFoundException(`Product with ID ${cartItem.product.productId} not found.`);
       }
 
       if (product.stockQuantity < cartItem.quantity) {
@@ -68,7 +68,7 @@ export class OrderService {
 
       const orderItem = new OrderItem();
       orderItem.product = product;
-      orderItem.product.productId = product.productId;
+      orderItem.productId = product.productId;
       orderItem.quantity = cartItem.quantity;
       orderItem.pricePerUnit = cartItem.priceAtTimeOfAddition;
       orderItem.order = savedOrder;
@@ -79,7 +79,7 @@ export class OrderService {
     const savedOrderItems = await transactionalEntityManager.save(OrderItem, orderItems);
     savedOrder.items = savedOrderItems;
 
-    
+   
     return transactionalEntityManager.save(Order, savedOrder);
   }).catch(error => {
     console.error('Transaction failed:', error);
@@ -93,21 +93,21 @@ export class OrderService {
     });
   }
 
-  async findOne( orderid: string): Promise<Order> {
+  async findOne(id: string): Promise<Order> {
     const order = await this.orderRepository.findOne({
-      where: {  orderid },
+      where: { orderId: id },
       relations: ['items', 'items.product']
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID "${orderid}" not found`);
+      throw new NotFoundException(`Order with ID "${id}" not found`);
     }
 
     return order;
   }
 
-  async updateOrderStatus( orderid: string, status: OrderStatus): Promise<Order> {
-    const order = await this.findOne( orderid);
+  async updateOrderStatus(id: string, status: OrderStatus): Promise<Order> {
+    const order = await this.findOne(id);
     order.status = status;
     return this.orderRepository.save(order);
   }
