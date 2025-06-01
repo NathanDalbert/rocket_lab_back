@@ -285,9 +285,10 @@ describe('CartService', () => {
   
   describe('clearCart', () => {
     it('deve remover todos os itens de um carrinho', async () => {
-      const item1 = {...mockCartItem};
+      const item1 = {...mockCartItem, cartItemId: uuidv4()};
       const item2 = {...mockCartItem, cartItemId: uuidv4()};
       const cartToClear: Cart = { ...mockEmptyCart, items: [item1, item2] };
+      const initialItemsLength = cartToClear.items.length; 
       
       cartRepository.findOne!.mockResolvedValue(cartToClear);
       cartItemRepository.remove!.mockResolvedValue({} as any);
@@ -295,7 +296,13 @@ describe('CartService', () => {
 
       const result = await service.clearCart(mockCartId);
 
-      expect(cartItemRepository.remove!).toHaveBeenCalledWith(cartToClear.items);
+      expect(cartItemRepository.remove!).toHaveBeenCalledTimes(1);
+      const receivedItemsToRemove = cartItemRepository.remove!.mock.calls[0][0] as CartItem[];
+      expect(receivedItemsToRemove).toBeInstanceOf(Array);
+      expect(receivedItemsToRemove.length).toBe(initialItemsLength); 
+      expect(receivedItemsToRemove.map(item => item.cartItemId).sort()).toEqual([item1.cartItemId, item2.cartItemId].sort());
+
+
       expect(result.items.length).toBe(0);
       expect(result.totalAmount).toBe(0);
     });
