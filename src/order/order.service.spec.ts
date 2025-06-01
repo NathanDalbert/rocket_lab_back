@@ -104,7 +104,7 @@ describe('OrderService', () => {
       cartId: mockCartId,
       items: [mockCartItem1, mockCartItem2],
       totalAmount: (mockCartItem1.quantity * mockCartItem1.priceAtTimeOfAddition) + (mockCartItem2.quantity * mockCartItem2.priceAtTimeOfAddition),
-      userId: undefined,
+  
     };
 
     mockOrder = {

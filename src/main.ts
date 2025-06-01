@@ -1,18 +1,22 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'; // Adicionado ClassSerializerInterceptor
+import { NestFactory, Reflector } from '@nestjs/core'; // Adicionado Reflector
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
   }));
 
- 
+  
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); 
+
+  
   const config = new DocumentBuilder()
     .setTitle('Sistema de Compras Online API')
     .setDescription('Documentação da API para o sistema de compras online.')
@@ -20,7 +24,6 @@ async function bootstrap() {
     .addTag('products', 'Operações relacionadas a produtos') 
     .addTag('cart', 'Operações relacionadas ao carrinho de compras')
     .addTag('orders', 'Operações relacionadas a pedidos')
-   
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

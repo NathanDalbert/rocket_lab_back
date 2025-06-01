@@ -11,6 +11,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
+    app.useGlobalInterceptors(new common_1.ClassSerializerInterceptor(app.get(core_1.Reflector)));
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Sistema de Compras Online API')
         .setDescription('Documentação da API para o sistema de compras online.')

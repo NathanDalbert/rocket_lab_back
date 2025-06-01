@@ -48,20 +48,20 @@ describe('CartController', () => {
 
   const mockEmptyCart: Cart = {
     cartId: mockCartId,
-    userId: mockUserId, 
+ 
     items: [],
     totalAmount: 0,
   };
 
   const mockCartWithItem: Cart = {
     cartId: mockCartId,
-    userId: mockUserId,
+  
     items: [mockCartItem],
     totalAmount: mockProduct.price * mockCartItem.quantity,
   };
   mockCartItem.cart = mockCartWithItem; 
 
-  const mockCartsArray: Cart[] = [mockCartWithItem, { ...mockEmptyCart, cartId: uuidv4(), userId: uuidv4() }];
+  const mockCartsArray: Cart[] = [mockCartWithItem, { ...mockEmptyCart, cartId: uuidv4() }];
 
   const mockAddToCartDto: AddToCartDto = {
     productId: mockProductId,
@@ -118,31 +118,6 @@ describe('CartController', () => {
     });
   });
 
-  describe('smartAddItemToCart (adicionarItemInteligentementeAoCarrinho)', () => {
-    it('deve chamar cartService.smartAddItem e retornar o carrinho atualizado (sem cartId no DTO)', async () => {
-      mockCartService.smartAddItem.mockResolvedValue(mockCartWithItem);
-      const result = await controller.smartAddItemToCart(mockSmartAddToCartDto);
-      expect(service.smartAddItem).toHaveBeenCalledWith(mockSmartAddToCartDto);
-      expect(result).toEqual(mockCartWithItem);
-    });
-    
-    it('deve chamar cartService.smartAddItem e retornar o carrinho atualizado (com cartId no DTO)', async () => {
-        mockCartService.smartAddItem.mockResolvedValue(mockCartWithItem);
-        const result = await controller.smartAddItemToCart(mockSmartAddToCartDtoWithCartId);
-        expect(service.smartAddItem).toHaveBeenCalledWith(mockSmartAddToCartDtoWithCartId);
-        expect(result).toEqual(mockCartWithItem);
-      });
-
-    it('deve propagar NotFoundException do serviço', async () => {
-      mockCartService.smartAddItem.mockRejectedValue(new NotFoundException('Produto não encontrado.'));
-      await expect(controller.smartAddItemToCart(mockSmartAddToCartDto)).rejects.toThrow(NotFoundException);
-    });
-
-    it('deve propagar BadRequestException do serviço', async () => {
-      mockCartService.smartAddItem.mockRejectedValue(new BadRequestException('Estoque insuficiente.'));
-      await expect(controller.smartAddItemToCart(mockSmartAddToCartDto)).rejects.toThrow(BadRequestException);
-    });
-  });
 
   describe('getCart (obterCarrinho)', () => {
     it('deve chamar cartService.getCart e retornar o carrinho encontrado', async () => {

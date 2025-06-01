@@ -18,7 +18,6 @@ const swagger_1 = require("@nestjs/swagger");
 const cart_entity_1 = require("../cart/cart.entity/cart.entity");
 const cart_service_1 = require("./cart.service");
 const add_to_cart_dto_1 = require("./DTO/add-to-cart.dto");
-const smart_add_to_cart_dto_1 = require("./DTO/smart-add-to-cart.dto");
 const update_cart_item_dto_1 = require("./DTO/update-cart-item.dto");
 let CartController = class CartController {
     cartService;
@@ -28,8 +27,8 @@ let CartController = class CartController {
     createCart() {
         return this.cartService.createCart();
     }
-    async smartAddItemToCart(smartAddToCartDto) {
-        return this.cartService.smartAddItem(smartAddToCartDto);
+    getAllCarts() {
+        return this.cartService.getAllCarts();
     }
     getCart(cartId) {
         return this.cartService.getCart(cartId);
@@ -46,9 +45,6 @@ let CartController = class CartController {
     clearCart(cartId) {
         return this.cartService.clearCart(cartId);
     }
-    getAllCarts() {
-        return this.cartService.getAllCarts();
-    }
 };
 exports.CartController = CartController;
 __decorate([
@@ -61,17 +57,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "createCart", null);
 __decorate([
-    (0, common_1.Post)('smart-add'),
-    (0, swagger_1.ApiOperation)({ summary: 'Adicionar um item ao carrinho, criando um carrinho se necessário ou usando um existente.' }),
-    (0, swagger_1.ApiBody)({ type: smart_add_to_cart_dto_1.SmartAddToCartDto }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Item adicionado e carrinho retornado.', type: cart_entity_1.Cart }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.NOT_FOUND, description: 'Produto não encontrado, ou cartId fornecido mas não encontrado.' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.BAD_REQUEST, description: 'Dados inválidos ou estoque insuficiente.' }),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)("/list"),
+    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os carrinhos de compras' }),
+    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [cart_entity_1.Cart] }),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [smart_add_to_cart_dto_1.SmartAddToCartDto]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], CartController.prototype, "smartAddItemToCart", null);
+], CartController.prototype, "getAllCarts", null);
 __decorate([
     (0, common_1.Get)(':cartId'),
     (0, swagger_1.ApiOperation)({ summary: 'Obter um carrinho de compras pelo ID' }),
@@ -137,14 +129,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], CartController.prototype, "clearCart", null);
-__decorate([
-    (0, common_1.Get)("/list"),
-    (0, swagger_1.ApiOperation)({ summary: 'Listar todos os carrinhos de compras' }),
-    (0, swagger_1.ApiResponse)({ status: common_1.HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [cart_entity_1.Cart] }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], CartController.prototype, "getAllCarts", null);
 exports.CartController = CartController = __decorate([
     (0, swagger_1.ApiTags)('cart'),
     (0, common_1.Controller)('carts'),

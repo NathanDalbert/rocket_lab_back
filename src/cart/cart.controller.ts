@@ -20,8 +20,8 @@ import {
 import { Cart } from '../cart/cart.entity/cart.entity';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './DTO/add-to-cart.dto';
-import { SmartAddToCartDto } from './DTO/smart-add-to-cart.dto';
 import { UpdateCartItemDto } from './DTO/update-cart-item.dto';
+
 
 @ApiTags('cart')
 @Controller('carts')
@@ -36,16 +36,15 @@ export class CartController {
     return this.cartService.createCart();
   }
 
-  @Post('smart-add')
-  @ApiOperation({ summary: 'Adicionar um item ao carrinho, criando um carrinho se necessário ou usando um existente.' })
-  @ApiBody({ type: SmartAddToCartDto })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Item adicionado e carrinho retornado.', type: Cart })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Produto não encontrado, ou cartId fornecido mas não encontrado.' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Dados inválidos ou estoque insuficiente.' })
-  async smartAddItemToCart(@Body() smartAddToCartDto: SmartAddToCartDto): Promise<Cart> {
-    return this.cartService.smartAddItem(smartAddToCartDto);
+  
+  @Get("/list")
+  @ApiOperation({ summary: 'Listar todos os carrinhos de compras' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [Cart] })
+  getAllCarts(): Promise<Cart[]> {
+    return this.cartService.getAllCarts();
   }
 
+  
   @Get(':cartId')
   @ApiOperation({ summary: 'Obter um carrinho de compras pelo ID' })
   @ApiParam({ name: 'cartId', description: 'ID do carrinho (UUID)', type: 'string', format: 'uuid' })
@@ -106,11 +105,4 @@ export class CartController {
   clearCart(@Param('cartId', ParseUUIDPipe) cartId: string): Promise<Cart> {
       return this.cartService.clearCart(cartId);
   }
-  @Get("/list")
-  @ApiOperation({ summary: 'Listar todos os carrinhos de compras' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Lista de carrinhos retornada com sucesso.', type: [Cart] })
-  getAllCarts(): Promise<Cart[]> {
-    return this.cartService.getAllCarts();
-  }
-
 }

@@ -68,7 +68,6 @@ describe('CartService', () => {
 
     mockEmptyCart = {
       cartId: mockCartId,
-      userId: undefined,
       items: [],
       totalAmount: 0,
     };
@@ -83,7 +82,6 @@ describe('CartService', () => {
     
     mockCartWithItem = {
       cartId: mockCartId,
-      userId: undefined,
       items: [mockCartItem],
       totalAmount: mockProductPrice * mockCartItem.quantity,
     };

@@ -14,7 +14,6 @@ const typeorm_1 = require("typeorm");
 const cart_item_entity_1 = require("../cart-item.entity/cart-item.entity");
 let Cart = class Cart {
     cartId;
-    userId;
     items;
     totalAmount;
 };
@@ -23,10 +22,6 @@ __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
     __metadata("design:type", String)
 ], Cart.prototype, "cartId", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Cart.prototype, "userId", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => cart_item_entity_1.CartItem, item => item.cart, { cascade: true, eager: true }),
     __metadata("design:type", Array)
